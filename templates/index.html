@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Bangla News Summarizer</title>
 <style>
-body{font-family: "Noto Sans Bengali", Arial,sans-serif; max-width:900px;margin:24px auto;padding:0 12px;}
+body{font-family:"Noto Sans Bengali",Arial,sans-serif; max-width:900px;margin:24px auto;padding:0 12px;}
 header{display:flex;justify-content:space-between;align-items:center;}
 h1{margin:0;font-size:1.5rem;}
 .card{border:1px solid #ddd;padding:12px;border-radius:8px;margin:12px 0;}
@@ -21,14 +21,7 @@ h1{margin:0;font-size:1.5rem;}
 </header>
 
 <main id="list">
-{% for a in articles %}
-<article class="card">
-<div class="title"><a href="{{ a.link }}" target="_blank">{{ a.title }}</a></div>
-<div class="summary">{{ a.summary }}</div>
-</article>
-{% else %}
-<p>কোনো আর্টিকেল নেই — Fetch & Summarize চাপুন।</p>
-{% endfor %}
+<!-- JS will populate articles -->
 </main>
 
 <script>
@@ -37,15 +30,32 @@ async function fetchNow(){
   btn.disabled = true;
   btn.textContent = "Fetching...";
   try{
-    const res = await fetch('/fetch');
-    const data = await res.json();
-    alert("Added: " + data.added + " articles");
-    window.location.reload();
+    await fetch('/fetch'); // Update cache
+
+    const res = await fetch('/api/latest'); // Get JSON
+    const articles = await res.json();
+
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+
+    if(articles.length === 0){
+      list.innerHTML = '<p>কোনো আর্টিকেল নেই।</p>';
+    } else {
+      articles.forEach(a=>{
+        const card = document.createElement('article');
+        card.className='card';
+        card.innerHTML=`
+          <div class="title"><a href="${a.link}" target="_blank">${a.title}</a></div>
+          <div class="summary">${a.summary}</div>
+        `;
+        list.appendChild(card);
+      });
+    }
   }catch(e){
-    alert("Error: " + e.message);
+    alert("Error: "+e.message);
   }finally{
-    btn.disabled = false;
-    btn.textContent = "Fetch & Summarize";
+    btn.disabled=false;
+    btn.textContent="Fetch & Summarize";
   }
 }
 </script>
