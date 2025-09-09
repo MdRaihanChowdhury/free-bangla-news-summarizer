@@ -1,8 +1,11 @@
+# Render Deployment Blueprint for Free Bangla News Summarizer
 services:
   - type: web
-    name: free-bangla-news-summarizer
+    name: free-bangla-news-summarizer   # <-- Blueprint Name, unique
     env: python
     plan: free
     region: oregon
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
     startCommand: gunicorn app:app
