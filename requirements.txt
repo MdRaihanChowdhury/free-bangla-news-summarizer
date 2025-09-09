@@ -3,3 +3,4 @@ feedparser>=6.0
 sumy>=0.9
 nltk>=3.8
 Flask-Caching>=2.0
+gunicorn>=20.1
