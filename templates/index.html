@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Bangla News Summarizer</title>
+<style>
+body{font-family: "Noto Sans Bengali", Arial,sans-serif; max-width:900px;margin:24px auto;padding:0 12px;}
+header{display:flex;justify-content:space-between;align-items:center;}
+h1{margin:0;font-size:1.5rem;}
+.card{border:1px solid #ddd;padding:12px;border-radius:8px;margin:12px 0;}
+.title{font-weight:700;}
+.summary{margin-top:6px;line-height:1.5;}
+.fetch-btn{padding:8px 12px;border:0;border-radius:6px;background:#0066ff;color:white;cursor:pointer;}
+</style>
+</head>
+<body>
+<header>
+<h1>Free Bangla News Summarizer</h1>
+<button class="fetch-btn" onclick="fetchNow()">Fetch & Summarize</button>
+</header>
+
+<main id="list">
+{% for a in articles %}
+<article class="card">
+<div class="title"><a href="{{ a.link }}" target="_blank">{{ a.title }}</a></div>
+<div class="summary">{{ a.summary }}</div>
+</article>
+{% else %}
+<p>কোনো আর্টিকেল নেই — Fetch & Summarize চাপুন।</p>
+{% endfor %}
+</main>
+
+<script>
+async function fetchNow(){
+  const btn = document.querySelector('.fetch-btn');
+  btn.disabled = true;
+  btn.textContent = "Fetching...";
+  try{
+    const res = await fetch('/fetch');
+    const data = await res.json();
+    alert("Added: " + data.added + " articles");
+    window.location.reload();
+  }catch(e){
+    alert("Error: " + e.message);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Fetch & Summarize";
+  }
+}
+</script>
+</body>
+</html>
