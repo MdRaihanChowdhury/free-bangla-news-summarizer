@@ -44,15 +44,14 @@ def fetch_feeds():
     cache.set("latest_articles", results, timeout=3600)
     return jsonify({"added": len(results)})
 
-@app.route("/")
-def index():
-    articles = cache.get("latest_articles") or []
-    return render_template("index.html", articles=articles)
-
 @app.route("/api/latest")
 def api_latest():
     articles = cache.get("latest_articles") or []
     return jsonify(articles)
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
