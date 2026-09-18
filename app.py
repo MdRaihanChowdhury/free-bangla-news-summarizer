@@ -1,5 +1,6 @@
 import json
 import re
+from html import unescape
 from urllib.parse import urlparse
 import feedparser
 from flask import Flask, render_template, jsonify, request, Response
@@ -35,6 +36,12 @@ def summarize_text(text, sentences_count=3):
         # fallback: return first 200 chars if summarizer fails
         return text[:200]
 
+def clean_feed_text(value):
+    text = unescape(value or "")
+    text = re.sub(r"<script[^>]*>.*?</script>|<style[^>]*>.*?</style>", " ", text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r"<[^>]+>", " ", text)
+    return re.sub(r"\s+", " ", unescape(text)).strip()
+
 def extract_thumbnail(entry):
     media = entry.get("media_content") or entry.get("media_thumbnail") or []
     if media and isinstance(media, list):
@@ -45,9 +52,14 @@ def extract_thumbnail(entry):
     for enclosure in enclosures:
         if enclosure.get("type", "").startswith("image/") and enclosure.get("href"):
             return enclosure["href"]
-    content = entry.get("summary", "") or entry.get("description", "")
+    content = unescape(entry.get("summary", "") or entry.get("description", ""))
     image_match = re.search(r'<img[^>]+src=["\']([^"\']+)', content, re.IGNORECASE)
-    return image_match.group(1) if image_match else ""
+    if image_match:
+        return image_match.group(1)
+    srcset_match = re.search(r'(?:srcset|data-srcset)=["\']([^"\']+)', content, re.IGNORECASE)
+    if srcset_match:
+        return srcset_match.group(1).split(",")[0].strip().split(" ")[0]
+    return ""
 
 def classify_article(entry, text):
     article_text = f"{entry.get('title', '')} {text}".lower()
@@ -73,7 +85,7 @@ def fetch_feeds():
             d = feedparser.parse(feed_url)
             for entry in d.entries[:10]:
                 link = entry.get("link")
-                title = entry.get("title","")
+                title = clean_feed_text(entry.get("title", ""))
                 if not link:
                     continue
                 content = ""
@@ -81,16 +93,17 @@ def fetch_feeds():
                     content = entry.content[0].value
                 else:
                     content = entry.get("summary","") or entry.get("description","")
-                if not content.strip():
+                clean_content = clean_feed_text(content)
+                if not clean_content:
                     continue
-                summary = summarize_text(content)
+                summary = summarize_text(clean_content)
                 results.append({
                     "title": title,
                     "link": link,
                     "summary": summary,
                     "thumbnail": extract_thumbnail(entry),
                     "source": urlparse(feed_url).netloc.replace("www.", ""),
-                    "category": classify_article(entry, content)
+                    "category": classify_article(entry, clean_content)
                 })
         except Exception as e:
             print("Feed error:", feed_url, e)
