@@ -1,5 +1,6 @@
 import json
 import re
+from datetime import datetime, timezone
 from html import unescape
 from urllib.parse import urlparse
 import feedparser
@@ -41,6 +42,12 @@ def clean_feed_text(value):
     text = re.sub(r"<script[^>]*>.*?</script>|<style[^>]*>.*?</style>", " ", text, flags=re.IGNORECASE | re.DOTALL)
     text = re.sub(r"<[^>]+>", " ", text)
     return re.sub(r"\s+", " ", unescape(text)).strip()
+
+def get_published_at(entry):
+    published = entry.get("published_parsed") or entry.get("updated_parsed")
+    if not published:
+        return ""
+    return datetime(*published[:6], tzinfo=timezone.utc).isoformat()
 
 def extract_thumbnail(entry):
     media = entry.get("media_content") or entry.get("media_thumbnail") or []
@@ -103,7 +110,8 @@ def fetch_feeds():
                     "summary": summary,
                     "thumbnail": extract_thumbnail(entry),
                     "source": urlparse(feed_url).netloc.replace("www.", ""),
-                    "category": classify_article(entry, clean_content)
+                    "category": classify_article(entry, clean_content),
+                    "published_at": get_published_at(entry)
                 })
         except Exception as e:
             print("Feed error:", feed_url, e)
