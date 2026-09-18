@@ -3,174 +3,56 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Free Bangla News Summarizer</title>
-
-<!-- Google Font -->
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
-
+<title>সংবাদ | সর্বশেষ বাংলা খবরের সংক্ষিপ্তসার</title>
+<meta name="description" content="{{ site_description }}">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="{{ site_url }}/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="bn_BD">
+<meta property="og:site_name" content="সংবাদ">
+<meta property="og:title" content="সংবাদ | সর্বশেষ বাংলা খবরের সংক্ষিপ্তসার">
+<meta property="og:description" content="{{ site_description }}">
+<meta property="og:url" content="{{ site_url }}/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="সংবাদ | সর্বশেষ বাংলা খবরের সংক্ষিপ্তসার">
+<meta name="twitter:description" content="{{ site_description }}">
+<meta name="theme-color" content="#123c3d">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"সংবাদ","url":"{{ site_url }}/","description":"{{ site_description }}","inLanguage":"bn-BD","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_url }}/#latest"},"query-input":"required name=category"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --primary:#2563eb;
-  --bg:#f8fafc;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#64748b;
-}
-
-*{box-sizing:border-box;}
-
-body{
-  margin:0;
-  font-family:"Noto Sans Bengali",system-ui,-apple-system,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:16px;
-}
-
-/* Header */
-header{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:20px;
-}
-
-header h1{
-  font-size:1.6rem;
-  font-weight:700;
-}
-
-.fetch-btn{
-  padding:10px 16px;
-  border:0;
-  border-radius:10px;
-  background:linear-gradient(135deg,#2563eb,#1e40af);
-  color:white;
-  font-weight:600;
-  cursor:pointer;
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-
-.fetch-btn:hover{
-  transform:translateY(-1px);
-  box-shadow:0 8px 20px rgba(37,99,235,.25);
-}
-
-.fetch-btn:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-/* Grid */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:16px;
-}
-
-/* Card */
-.card{
-  background:var(--card);
-  border-radius:14px;
-  padding:16px;
-  box-shadow:0 6px 18px rgba(0,0,0,.06);
-  display:flex;
-  flex-direction:column;
-}
-
-.card a{
-  color:var(--primary);
-  text-decoration:none;
-}
-
-.card a:hover{text-decoration:underline;}
-
-.title{
-  font-size:1.05rem;
-  font-weight:700;
-  line-height:1.4;
-}
-
-.summary{
-  margin-top:10px;
-  color:var(--muted);
-  line-height:1.6;
-  font-size:.95rem;
-}
-
-footer{
-  margin:40px 0 10px;
-  text-align:center;
-  font-size:.85rem;
-  color:var(--muted);
-}
-
-/* Mobile tweaks */
-@media(max-width:480px){
-  header h1{font-size:1.3rem;}
-}
+:root{--ink:#10252b;--muted:#6b7d80;--paper:#f5f7f4;--white:#fff;--line:#dfe6e1;--accent:#d9532b;--deep:#123c3d;--shadow:0 18px 45px rgba(17,53,49,.08)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Noto Sans Bengali",sans-serif}
+a{color:inherit;text-decoration:none}.wrap{width:min(1180px,calc(100% - 40px));margin:auto}
+.topbar{border-bottom:1px solid var(--line);font-family:"DM Sans","Noto Sans Bengali",sans-serif;font-size:12px;color:var(--muted)}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;min-height:38px}.ticker{display:flex;gap:9px;align-items:center}.live{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 4px #f7ddd6}
+header{background:var(--white);border-bottom:1px solid var(--line)}.masthead{display:flex;align-items:center;justify-content:space-between;padding:22px 0 18px;gap:24px}.brand{display:flex;align-items:center;gap:13px}.mark{display:grid;place-items:center;width:46px;height:46px;background:var(--deep);color:#f4c96b;font-size:25px;border-radius:12px 12px 12px 3px}.brand h1{font-size:29px;line-height:1;margin:0;font-weight:800;letter-spacing:-.5px}.brand p{margin:6px 0 0;color:var(--muted);font-size:12px}.date{font-family:"DM Sans",sans-serif;text-align:right;color:var(--muted);font-size:12px}.date strong{display:block;color:var(--ink);font-size:14px;margin-bottom:4px}
+nav{display:flex;gap:27px;align-items:center;overflow:auto;white-space:nowrap;padding-bottom:13px;font-size:14px;font-weight:600}nav a.active,nav a:hover{color:var(--accent)}
+.hero{padding:36px 0 28px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end}.eyebrow{color:var(--accent);font-family:"DM Sans",sans-serif;text-transform:uppercase;font-size:11px;font-weight:700;letter-spacing:1.3px}.hero h2{font-size:clamp(28px,4vw,44px);line-height:1.2;margin:9px 0 7px;letter-spacing:-.8px}.hero p{margin:0;color:var(--muted);font-size:15px}.refresh{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--deep);background:var(--deep);color:white;border-radius:7px;padding:11px 15px;font:600 13px "Noto Sans Bengali",sans-serif;cursor:pointer;transition:transform .2s,background .2s}.refresh:hover{background:#1c5554;transform:translateY(-2px)}.refresh:disabled{opacity:.65;cursor:wait;transform:none}.refresh svg{width:16px;height:16px}
+.section-head{display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--ink);padding:14px 0 16px}.section-head h3{font-size:20px;margin:0}.count{color:var(--muted);font-size:12px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:var(--white);border:1px solid var(--line);border-radius:8px;min-height:272px;padding:22px;display:flex;flex-direction:column;box-shadow:var(--shadow);animation:rise .5s both}.card:nth-child(2){animation-delay:80ms}.card:nth-child(3){animation-delay:160ms}.card:hover{border-color:#c6d3ca}.thumb{height:86px;margin:-4px 0 16px;overflow:hidden;border-radius:5px;background:#e8eeea}.thumb img{width:100%;height:100%;display:block;object-fit:cover;filter:saturate(.72);opacity:.88}.source{display:flex;justify-content:space-between;align-items:center;color:var(--accent);font:700 10px "DM Sans",sans-serif;text-transform:uppercase;letter-spacing:1px}.category-label{display:inline-flex;align-items:center;border:1px solid #e6b7a9;border-radius:999px;padding:3px 8px;color:#b6482d;background:#fff7f4;font:700 10px "Noto Sans Bengali",sans-serif;letter-spacing:0;text-transform:none}.source span:last-child{color:#9aa8a6;font-weight:500;letter-spacing:0;text-transform:none}.title{font-size:19px;line-height:1.48;font-weight:700;margin:18px 0 12px}.title a:hover{color:var(--accent)}.summary{color:#617275;font-size:14px;line-height:1.8;margin:0 0 22px}.read{margin-top:auto;color:var(--deep);font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px}.read span{font-size:18px;line-height:10px;transition:transform .2s}.read:hover span{transform:translateX(4px)}.source-note{margin:13px 0 0;color:#a6b1ae;font:400 10px "DM Sans","Noto Sans Bengali",sans-serif;letter-spacing:.1px}
+.state{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--muted);background:var(--white);border:1px dashed #cbd8d1;border-radius:8px}.spinner{width:25px;height:25px;border:3px solid #dbe6df;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}.error{color:#a5422d}.status{font-size:12px;color:var(--muted);min-height:20px;margin:15px 0 0}.footer{margin-top:62px;background:var(--deep);color:#dceae4;padding:28px 0}.footer .wrap{display:flex;justify-content:space-between;gap:15px;align-items:center}.footer strong{font-size:16px;color:white}.footer small{font-family:"DM Sans",sans-serif;color:#9bb8ae}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:760px){.wrap{width:min(100% - 28px,620px)}.topbar .wrap{min-height:34px}.topbar .ticker{display:none}.masthead{padding:18px 0 14px}.brand h1{font-size:24px}.date{display:none}.hero{grid-template-columns:1fr;padding:28px 0 23px}.hero h2{font-size:31px}.grid{grid-template-columns:1fr}.card{min-height:0}.footer .wrap{display:block}.footer small{display:block;margin-top:8px}}
+@media(min-width:761px) and (max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-
-<div class="container">
-<header>
-  <h1>📰 Free Bangla News Summarizer</h1>
-  <button class="fetch-btn" onclick="fetchNow()">Fetch & Summarize</button>
-</header>
-
-<main id="list" class="grid">
-  <p>নতুন খবর আনতে উপরের বাটনে ক্লিক করুন।</p>
-</main>
-
-<footer>
-  AI-powered Bangla News Summary • Fast • Free
-</footer>
-</div>
-
+<div class="topbar"><div class="wrap"><div class="ticker"><span class="live"></span> সর্বশেষ খবর ও সংক্ষিপ্তসার</div><span id="updated">আপডেট হচ্ছে...</span></div></div>
+<header><div class="wrap"><div class="masthead"><a class="brand" href="/"><span class="mark">ন</span><span><h1>সংবাদ</h1><p>বাংলা খবর, এক নজরে</p></span></a><div class="date"><strong>আজকের সংবাদ</strong><span id="today"></span></div></div><nav aria-label="প্রধান নেভিগেশন"><a class="active" href="#latest" data-category="সর্বশেষ">সর্বশেষ</a><a href="#latest" data-category="জাতীয়">জাতীয়</a><a href="#latest" data-category="আন্তর্জাতিক">আন্তর্জাতিক</a><a href="#latest" data-category="অর্থনীতি">অর্থনীতি</a><a href="#latest" data-category="প্রযুক্তি">প্রযুক্তি</a><a href="#latest" data-category="খেলা">খেলা</a></nav></div></header>
+<main class="wrap"><section class="hero"><div><div class="eyebrow">Daily briefing</div><h2>আজকের গুরুত্বপূর্ণ খবর,<br>সহজ ভাষায় সংক্ষেপে।</h2><p>বিশ্বস্ত সংবাদমাধ্যম থেকে বাছাই করা আপডেট, স্বয়ংক্রিয়ভাবে।</p></div><button id="refresh" class="refresh" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8.1 8.1 0 0 0-14.5-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 14.5 4.9L20 16"/><path d="M20 20v-4h-4"/></svg>এখনই আপডেট</button></section><section id="latest"><div class="section-head"><h3>সর্বশেষ সংক্ষিপ্তসার</h3><span id="count" class="count"></span></div><div id="list" class="grid"><div class="state"><div class="spinner"></div>খবর সংগ্রহ করা হচ্ছে...</div></div><p id="status" class="status"></p></section></main>
+<footer class="footer"><div class="wrap"><strong>সংবাদ</strong><small>স্বয়ংক্রিয় বাংলা নিউজ ব্রিফিং · প্রতি ১৫ মিনিটে আপডেট</small></div></footer>
 <script>
-async function fetchNow(){
-  const btn = document.querySelector('.fetch-btn');
-  btn.disabled = true;
-  btn.textContent = "Fetching...";
-
-  try{
-    await fetch('/fetch');
-    const res = await fetch('/api/latest');
-    const articles = await res.json();
-
-    const list = document.getElementById('list');
-    list.innerHTML = '';
-
-    if(!articles || articles.length === 0){
-      list.innerHTML = '<p>কোনো আর্টিকেল পাওয়া যায়নি।</p>';
-      return;
-    }
-
-    articles.forEach(a=>{
-      const card = document.createElement('article');
-      card.className='card';
-      card.innerHTML=`
-        <div class="title"><a href="${a.link}" target="_blank">${a.title}</a></div>
-        <div class="summary">${a.summary}</div>
-      `;
-      list.appendChild(card);
-    });
-
-  }catch(e){
-    alert("Error: "+e.message);
-  }finally{
-    btn.disabled=false;
-    btn.textContent="Fetch & Summarize";
-  }
-}
+const list=document.getElementById('list'),button=document.getElementById('refresh'),status=document.getElementById('status'),count=document.getElementById('count'),updated=document.getElementById('updated');let allArticles=[],activeCategory='সর্বশেষ';
+const escapeHtml=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+function showState(message, isError=false){list.innerHTML=`<div class="state ${isError?'error':''}">${isError?'':'<div class="spinner"></div>'}${message}</div>`}
+function render(articles){if(!articles.length){showState(`${activeCategory==='সর্বশেষ'?'এই মুহূর্তে কোনো খবর':'এই বিভাগে কোনো খবর'} পাওয়া যায়নি।`,false);count.textContent='';return}count.textContent=`${articles.length}টি খবর`;list.innerHTML=articles.map((article,index)=>`<article class="card">${article.thumbnail?`<div class="thumb"><img src="${escapeHtml(article.thumbnail)}" alt="${escapeHtml(article.title)} - সংবাদ thumbnail" loading="lazy"></div>`:''}<div class="source"><span class="category-label">${escapeHtml(article.category||'সংবাদ ব্রিফ')}</span><span>#${String(index+1).padStart(2,'0')}</span></div><h4 class="title"><a href="${escapeHtml(article.link)}" target="_blank" rel="noopener">${escapeHtml(article.title)}</a></h4><p class="summary">${escapeHtml(article.summary)}</p><a class="read" href="${escapeHtml(article.link)}" target="_blank" rel="noopener">বিস্তারিত পড়ুন <span>→</span></a><small class="source-note">সূত্র: ${escapeHtml(article.source||'সংবাদমাধ্যম')}</small></article>`).join('')}
+function renderActiveCategory(){render(activeCategory==='সর্বশেষ'?allArticles:allArticles.filter(article=>article.category===activeCategory))}
+async function fetchNow(){button.disabled=true;button.innerHTML='<span class="spinner" style="width:14px;height:14px;border-width:2px;margin:0"></span> আপডেট হচ্ছে';status.textContent='';try{const response=await fetch('/fetch');if(!response.ok)throw new Error('fetch failed');const latest=await fetch('/api/latest');if(!latest.ok)throw new Error('latest failed');allArticles=await latest.json();renderActiveCategory();const time=new Date().toLocaleTimeString('bn-BD',{hour:'numeric',minute:'2-digit'});updated.textContent=`সর্বশেষ আপডেট: ${time}`;status.textContent='নতুন খবর স্বয়ংক্রিয়ভাবে সংগ্রহ করা হয়েছে।'}catch(error){showState('খবর আনতে সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।',true);status.textContent=error.message}finally{button.disabled=false;button.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8.1 8.1 0 0 0-14.5-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 14.5 4.9L20 16"/><path d="M20 20v-4h-4"/></svg>এখনই আপডেট'}}
+document.querySelectorAll('nav a[data-category]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();document.querySelectorAll('nav a[data-category]').forEach(item=>item.classList.remove('active'));link.classList.add('active');activeCategory=link.dataset.category;renderActiveCategory();document.getElementById('latest').scrollIntoView({behavior:'smooth',block:'start'});}));document.getElementById('today').textContent=new Intl.DateTimeFormat('bn-BD',{dateStyle:'full'}).format(new Date());button.addEventListener('click',fetchNow);fetchNow();setInterval(fetchNow,15*60*1000);
 </script>
 </body>
 </html>

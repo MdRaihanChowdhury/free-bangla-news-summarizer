@@ -1,6 +1,8 @@
 import json
+import re
+from urllib.parse import urlparse
 import feedparser
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request, Response
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.text_rank import TextRankSummarizer
@@ -8,14 +10,20 @@ from flask_caching import Cache
 
 app = Flask(__name__)
 cache = Cache(app, config={"CACHE_TYPE": "simple", "CACHE_DEFAULT_TIMEOUT": 3600})
+SITE_DESCRIPTION = "বাংলাদেশের বিশ্বস্ত সংবাদমাধ্যম থেকে বাংলা খবরের স্বয়ংক্রিয় সংক্ষিপ্তসার, সর্বশেষ আপডেট ও বিভাগভিত্তিক সংবাদ।"
 
-# Tested Bangla feeds
-FEEDS = [
+DEFAULT_FEEDS = [
     "https://www.prothomalo.com/rss",
     "https://bangla.bdnews24.com/rss",
     "https://www.jagonews24.com/feed",
     "https://www.bbc.com/bengali/index.xml"
 ]
+
+try:
+    with open("feeds.json", encoding="utf-8") as feeds_file:
+        FEEDS = json.load(feeds_file)
+except (FileNotFoundError, json.JSONDecodeError):
+    FEEDS = DEFAULT_FEEDS
 
 def summarize_text(text, sentences_count=3):
     try:
@@ -26,6 +34,36 @@ def summarize_text(text, sentences_count=3):
     except Exception:
         # fallback: return first 200 chars if summarizer fails
         return text[:200]
+
+def extract_thumbnail(entry):
+    media = entry.get("media_content") or entry.get("media_thumbnail") or []
+    if media and isinstance(media, list):
+        image_url = media[0].get("url")
+        if image_url:
+            return image_url
+    enclosures = entry.get("enclosures") or []
+    for enclosure in enclosures:
+        if enclosure.get("type", "").startswith("image/") and enclosure.get("href"):
+            return enclosure["href"]
+    content = entry.get("summary", "") or entry.get("description", "")
+    image_match = re.search(r'<img[^>]+src=["\']([^"\']+)', content, re.IGNORECASE)
+    return image_match.group(1) if image_match else ""
+
+def classify_article(entry, text):
+    article_text = f"{entry.get('title', '')} {text}".lower()
+    tags = " ".join(tag.get("term", "") for tag in (entry.get("tags") or [])).lower()
+    topic_text = f"{article_text} {tags}"
+    categories = {
+        "আন্তর্জাতিক": ["আন্তর্জাতিক", "বিশ্ব", "যুক্তরাষ্ট্র", "ভারত", "পাকিস্তান", "ইউক্রেন", "রাশিয়া", "ইরান", "চীন", "সৌদি", "ট্রাম্প"],
+        "অর্থনীতি": ["অর্থনীতি", "অর্থ", "বাজেট", "ব্যাংক", "শেয়ার", "বাজার", "দাম", "টাকা", "ডলার", "ব্যবসা", "জ্বালানি"],
+        "প্রযুক্তি": ["প্রযুক্তি", "প্রযুক্তি", "এআই", "এআই", "সফটওয়্যার", "মোবাইল", "ইন্টারনেট", "কম্পিউটার", "সাইবার"],
+        "খেলা": ["খেলা", "ক্রিকেট", "ফুটবল", "ম্যাচ", "রান", "উইকেট", "গোল", "বিশ্বকাপ"],
+        "জাতীয়": ["বাংলাদেশ", "ঢাকা", "সরকার", "নির্বাচন", "সংসদ", "আদালত", "পুলিশ", "রাজনীতি", "শিক্ষা", "স্বাস্থ্য"]
+    }
+    for category, keywords in categories.items():
+        if any(keyword in topic_text for keyword in keywords):
+            return category
+    return "জাতীয়"
 
 @app.route("/fetch")
 def fetch_feeds():
@@ -49,7 +87,10 @@ def fetch_feeds():
                 results.append({
                     "title": title,
                     "link": link,
-                    "summary": summary
+                    "summary": summary,
+                    "thumbnail": extract_thumbnail(entry),
+                    "source": urlparse(feed_url).netloc.replace("www.", ""),
+                    "category": classify_article(entry, content)
                 })
         except Exception as e:
             print("Feed error:", feed_url, e)
@@ -64,7 +105,30 @@ def api_latest():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template(
+        "index.html",
+        site_url=request.url_root.rstrip("/"),
+        site_description=SITE_DESCRIPTION
+    )
+
+@app.route("/robots.txt")
+def robots():
+    site_url = request.url_root.rstrip("/")
+    body = f"User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /fetch\nSitemap: {site_url}/sitemap.xml\n"
+    return Response(body, mimetype="text/plain")
+
+@app.route("/sitemap.xml")
+def sitemap():
+    site_url = request.url_root.rstrip("/")
+    body = f'''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{site_url}/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>'''
+    return Response(body, mimetype="application/xml")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
