@@ -1,4 +1,5 @@
 import json
+import hashlib
 import re
 from datetime import datetime, timezone
 from html import unescape
@@ -48,6 +49,12 @@ def get_published_at(entry):
     if not published:
         return ""
     return datetime(*published[:6], tzinfo=timezone.utc).isoformat()
+
+def article_slug(title, link):
+    words = re.findall(r"[a-z0-9]+", title.lower())
+    readable = "-".join(words[:8]) or "news"
+    suffix = hashlib.sha1(link.encode("utf-8")).hexdigest()[:8]
+    return f"{readable}-{suffix}"
 
 def extract_thumbnail(entry):
     media = entry.get("media_content") or entry.get("media_thumbnail") or []
@@ -106,6 +113,7 @@ def fetch_feeds():
                 summary = summarize_text(clean_content)
                 results.append({
                     "title": title,
+                    "slug": article_slug(title, link),
                     "link": link,
                     "summary": summary,
                     "thumbnail": extract_thumbnail(entry),
@@ -124,6 +132,18 @@ def api_latest():
     articles = cache.get("latest_articles") or []
     return jsonify(articles)
 
+@app.route("/news/<slug>")
+def article_page(slug):
+    articles = cache.get("latest_articles") or []
+    article = next((item for item in articles if item.get("slug") == slug), None)
+    if not article:
+        return render_template("404.html"), 404
+    return render_template(
+        "article.html",
+        article=article,
+        site_url=request.url_root.rstrip("/")
+    )
+
 @app.route("/")
 def index():
     return render_template(
@@ -141,6 +161,11 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     site_url = request.url_root.rstrip("/")
+    articles = cache.get("latest_articles") or []
+    article_urls = "\n".join(
+        f"  <url><loc>{site_url}/news/{article['slug']}</loc><changefreq>daily</changefreq><priority>0.8</priority></url>"
+        for article in articles if article.get("slug")
+    )
     body = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -148,6 +173,7 @@ def sitemap():
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
+{article_urls}
 </urlset>'''
     return Response(body, mimetype="application/xml")
 
